@@ -1,0 +1,11 @@
+[build]
+cmd = "go"
+args = ["run", "main.go"]
+wait_delay = "1s"
+full_bin = "false"
+exclude_dir = ["assets", "tmp", "vendor"]
+
+[log]
+prefix = "air"
+output = "file"
+format = "term"
