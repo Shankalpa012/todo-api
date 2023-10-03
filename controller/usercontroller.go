@@ -13,7 +13,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Signup(ctx *gin.Context) {
+type UserController struct {
+	userService *service.UserService
+}
+
+func NewUserController(userService *service.UserService) *UserController {
+	return &UserController{
+		userService: userService,
+	}
+}
+
+func (u UserController) Signup(ctx *gin.Context) {
 	//define the data
 	var data model.User
 
@@ -34,7 +44,7 @@ func Signup(ctx *gin.Context) {
 	}
 
 	//save to the database
-	err := service.UserCreate(&user)
+	err := u.userService.UserCreate(&user)
 	if err != nil {
 		fmt.Println("Error while saving data to database")
 	}
@@ -45,7 +55,7 @@ func Signup(ctx *gin.Context) {
 	})
 }
 
-func Login(ctx *gin.Context) {
+func (u UserController) Login(ctx *gin.Context) {
 	//get the data from the body
 
 	var data model.UserLogin
@@ -59,7 +69,7 @@ func Login(ctx *gin.Context) {
 	}
 
 	// validate if the user exists or not
-	user, err := service.ValidateUser(&data)
+	user, err := u.userService.ValidateUser(&data)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

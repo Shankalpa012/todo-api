@@ -3,26 +3,33 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
+	"todo/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
 
-func ValidateToken() gin.HandlerFunc {
+type AuthMiddleware struct {
+	userService *service.UserService
+}
+
+func NewAuthMiddleware(userService *service.UserService) *AuthMiddleware {
+	return &AuthMiddleware{
+		userService: userService,
+	}
+}
+
+func (u AuthMiddleware) ValidateToken() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
 		tokenHeader := getTokenFromHeader(ctx)
-
 		if tokenHeader == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "No token provided"})
 			ctx.Abort()
 			return
 		}
 
-		token, err := validateToken(tokenHeader)
-
+		token, err := u.userService.ValidateToken(tokenHeader)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			ctx.Abort()
@@ -43,26 +50,6 @@ func ValidateToken() gin.HandlerFunc {
 		}
 
 	}
-}
-
-func validateToken(tokenString string) (*jwt.Token, error) {
-	// Parse and validate the JWT token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Invalid signing method")
-		}
-		return []byte(os.Getenv("SECRETE")), nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if !token.Valid {
-		return nil, fmt.Errorf("Invalid token")
-	}
-
-	return token, nil
 }
 
 func getTokenFromHeader(ctx *gin.Context) string {
