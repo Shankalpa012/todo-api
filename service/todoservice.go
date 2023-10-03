@@ -8,31 +8,40 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Create(todo *model.Todo) error {
-	return bootstraps.DB.Create(&todo).Error
+type TodoService struct {
+	*bootstraps.Database
 }
 
-func Update(id string, todo map[string]interface{}) error {
-	return bootstraps.DB.Model(&model.Todo{}).Where("id = ?", id).Updates(todo).Error
+func NewTodoService(DB *bootstraps.Database) *TodoService {
+	return &TodoService{DB}
 }
 
-func GetAll() (map[string]interface{}, error) {
-	var todos []model.Todo
+// func Create(todo *model.Todo) error {
+// 	return bootstraps.DB.Create(&todo).Error
+// }
 
-	err := bootstraps.DB.Find(&todos).Error
-	if err != nil {
-		fmt.Println("Error while getting")
-		return nil, err
-	}
+// func Update(id string, todo map[string]interface{}) error {
+// 	return bootstraps.DB.Model(&model.Todo{}).Where("id = ?", id).Updates(todo).Error
+// }
 
-	return gin.H{"data": todos}, nil
-}
+// func (db TodoService) GetAll() (map[string]interface{}, error) {
+// 	var todos []model.Todo
+
+// 	err := db.Find(&todos).Error
+// 	if err != nil {
+// 		fmt.Println("Error while getting")
+// 		return nil, err
+// 	}
+
+// 	return gin.H{"data": todos}, nil
+// }
 
 // get todo for a specific user
-func GetUserTodo(userId string) (map[string]interface{}, error) {
+func (db TodoService) GetUserTodo() (map[string]interface{}, error) {
 	var todos []model.Todo
 
-	err := bootstraps.DB.Where("user_id = ?", userId).Find(&todos).Error
+	// err := db.Where("user_id = ?", userId).Find(&todos).Error
+	err := db.Find(&todos).Error
 	if err != nil {
 		fmt.Println("Error while getting")
 		return nil, err
@@ -41,6 +50,6 @@ func GetUserTodo(userId string) (map[string]interface{}, error) {
 	return gin.H{"data": todos}, nil
 }
 
-func GetById(id string) (todo *model.Todo, err error) {
-	return todo, bootstraps.DB.First(&todo, "id = ?", id).Error
-}
+// func GetById(id string) (todo *model.Todo, err error) {
+// 	return todo, bootstraps.DB.First(&todo, "id = ?", id).Error
+// }

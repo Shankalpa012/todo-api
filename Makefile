@@ -5,3 +5,5 @@ run:
 
 migrate:
 	go run migrate/migration.go
+go:
+	go run main.go

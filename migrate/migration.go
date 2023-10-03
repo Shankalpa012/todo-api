@@ -8,10 +8,10 @@ import (
 
 func init() {
 	bootstraps.LoadEnv()
-	bootstraps.ConnectToDB()
+	bootstraps.NewDatabase()
 }
 
 func main() {
 	fmt.Println("Migration Started")
-	bootstraps.DB.AutoMigrate(&model.Todo{}, &model.User{})
+	bootstraps.NewDatabase().AutoMigrate(&model.Todo{}, &model.User{})
 }
