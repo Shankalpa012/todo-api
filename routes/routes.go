@@ -5,5 +5,6 @@ import (
 )
 
 var Module = fx.Options(
-	fx.Invoke(SetupRoutes),
+	fx.Invoke(SetupTodoRoutes),
+	fx.Invoke(SetupUserRoutes),
 )
