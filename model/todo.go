@@ -12,7 +12,6 @@ type Todo struct {
 }
 
 type UpdateTodo struct {
-	UserID      string `json:"user_id" form:"user_id"`
-	Title       string `json:"title" form:"title"`
-	Description string `json:"description" form:"description"`
+	Title       string `json:"title" form:"title" binding:"required"`
+	Description string `json:"description" form:"description" binding:"required"`
 }

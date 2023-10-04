@@ -2,8 +2,12 @@ package controller
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+	"todo/model"
 	"todo/service"
 
+	"github.com/fatih/structs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,67 +21,67 @@ func NewTodoController(todoService *service.TodoService) *TodoController {
 	}
 }
 
-// func CreateTodo(c *gin.Context) {
-// 	data := model.Todo{}
+func (t TodoController) CreateTodo(c *gin.Context) {
+	data := model.Todo{}
 
-// 	if err := c.ShouldBindJSON(&data); err != nil {
-// 		fmt.Println("Error While binding the JSON")
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"message": "Error While binding the JSON",
-// 		})
-// 		return
-// 	}
+	if err := c.ShouldBindJSON(&data); err != nil {
+		fmt.Println("Error While binding the JSON")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Error While binding the JSON",
+		})
+		return
+	}
 
-// 	err := service.Create(&model.Todo{
-// 		Title:       data.Title,
-// 		Description: data.Description,
-// 		UserID:      data.UserID,
-// 	})
+	err := t.todoService.CreateTodo(&model.Todo{
+		Title:       data.Title,
+		Description: data.Description,
+		UserID:      data.UserID,
+	})
 
-// 	if err != nil {
-// 		fmt.Println("Error while adding to DB")
-// 		return
-// 	}
+	if err != nil {
+		fmt.Println("Error while adding to DB")
+		return
+	}
 
-// 	c.JSON(http.StatusCreated, gin.H{
-// 		"message": "TODO Created successfully",
-// 	})
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "TODO Created successfully",
+	})
 
-// }
+}
 
-// func UpdateTodo(ctx *gin.Context) {
-// 	uuid := ctx.Param("id")
+func (t TodoController) UpdateTodo(ctx *gin.Context) {
+	uuid := ctx.Param("id")
 
-// 	var todo model.UpdateTodo
-// 	if err := ctx.ShouldBindJSON(&todo); err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error While parsing"})
-// 		return
-// 	}
+	fmt.Println(uuid)
 
-// 	finalData := structs.Map(todo)
+	var todo model.UpdateTodo
+	if err := ctx.ShouldBindJSON(&todo); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error While parsing"})
+		return
+	}
 
-// 	if err := service.Update(uuid, finalData); err != nil {
-// 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error While updating"})
-// 		return
-// 	}
+	finalData := structs.Map(todo)
 
-// 	ctx.JSON(200, gin.H{
-// 		"message": "TODO Updated successfully",
-// 	})
+	if err := t.todoService.Update(uuid, finalData); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Error While updating"})
+		return
+	}
 
-// }
+	ctx.JSON(200, gin.H{
+		"message": "TODO Updated successfully",
+	})
+
+}
 
 func (tc TodoController) GetAllTodo(c *gin.Context) {
 
-	fmt.Println("todo controller is herer!!!")
-	// userId := c.MustGet("id").(float64)
+	userId := c.MustGet("id").(float64)
 
-	// todos, err := tc.todoService.GetUserTodo(strconv.Itoa(int(userId)))
-	// if err != nil {
-	// 	fmt.Println("Error while fetching all the data", err)
-	// 	return
-	// }
-	todos, err := tc.todoService.GetUserTodo()
+	todos, err := tc.todoService.GetUserTodo(strconv.Itoa(int(userId)))
+	if err != nil {
+		fmt.Println("Error while fetching all the data", err)
+		return
+	}
 	if err != nil {
 		fmt.Println("Error while fetching all the data", err)
 		return
@@ -88,16 +92,16 @@ func (tc TodoController) GetAllTodo(c *gin.Context) {
 	})
 }
 
-// func GetTodoById(c *gin.Context) {
-// 	id := c.Param("id")
+func (t TodoController) GetTodoById(c *gin.Context) {
+	id := c.Param("id")
 
-// 	todo, err := service.GetById(id)
-// 	if err != nil {
-// 		fmt.Println("Error while fetching single data", err)
-// 		return
-// 	}
-// 	fmt.Println(todo)
-// 	c.JSON(200, gin.H{
-// 		"data": todo,
-// 	})
-// }
+	todo, err := t.todoService.GetById(id)
+	if err != nil {
+		fmt.Println("Error while fetching single data", err)
+		return
+	}
+	fmt.Println(todo)
+	c.JSON(200, gin.H{
+		"data": todo,
+	})
+}
